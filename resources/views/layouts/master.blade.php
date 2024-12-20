@@ -16,6 +16,15 @@
             color: red;
             font-weight: bold;
         }
+
+        .form-container {
+            width: 300px;
+            margin: 100px auto;
+            /* Adjust the top margin as needed */
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -142,7 +151,37 @@
             <main>
                 <div class="container-fluid px-4">
 
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>{{ session('success') }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                <!--<span aria-hidden="true">&times;</span>-->
+                            </button>
+                        </div>
+                    @endif
 
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>{{ session('error') }}</strong>
+                            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                                <!--<span aria-hidden="true">&times;</span>-->
+                            </button>
+                        </div>
+                    @endif
+
+
+
+
+                    <h1 class="mt-4"></h1>
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item"><a href="index.html"></a></li>
+                        <li class="breadcrumb-item active"></li>
+                    </ol>
+                    <div hidden class="card mb-4">
+                        <div class="card-body">
+
+                        </div>
+                    </div>
 
 
 

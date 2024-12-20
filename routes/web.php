@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use app\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PasswordRecoveryController;
 use App\Http\Controllers\PasswordManagerController;
+use App\Http\Controllers\OrganisationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,6 +23,11 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.connect');
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/users/list', [AuthController::class, 'getUsers'])->name('users.list');
+Route::get('/users/edit/{id}', [AuthController::class, 'getUser'])->name('user.show');
+Route::get('/users/activate/{id}', [AuthController::class, 'getUseraForActivate'])->name('user.showactivate');
+Route::post('/user/edit', [AuthController::class, 'edituser'])->name('user.edit');
+Route::post('/user/activate', [AuthController::class, 'activateuser'])->name('user.activate');
 
 Route::get('/password/reset', [PasswordRecoveryController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/password/email', [PasswordRecoveryController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -29,8 +35,15 @@ Route::get('/password/reset/{token}', [PasswordRecoveryController::class, 'showR
 //Route::post('/password/reset', [PasswordRecoveryController::class, 'reset'])->name('password.update');
 Route::post('/password/update/{token}', [PasswordRecoveryController::class, 'update']);
 
+//Organisations
+Route::get('/organisation/list', [OrganisationController::class, 'list'])->name('orgs.list');
+Route::get('/organisation/create', [OrganisationController::class, 'showCreateOrgForm'])->name('org.showcreate');
+Route::post('/organisation/store', [OrganisationController::class, 'store'])->name('org.store');
 
-/*Route::get('password/reset', [PasswordManagerController::class, 'showLinkRequestForm'])->name('password.request');
+//getUsers
+
+//
+/*
 Route::post('password/email', [PasswordManagerController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('password/reset/{token}', [PasswordManagerController::class, 'showResetForm'])->name('password.reset');
 Route::post('password/update', [PasswordManagerController::class, 'reset'])->name('password.update');*/

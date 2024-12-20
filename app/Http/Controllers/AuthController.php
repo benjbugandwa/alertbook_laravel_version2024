@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
@@ -11,13 +12,16 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
+use App\Models\Province;
 
 class AuthController extends Controller
 {
     //
     public function showRegistrationForm()
     {
-        return view('user.register');
+        //$provinces = User::all();
+        $provinces = Province::orderBy('province_name', 'asc')->get();
+        return view('user.register')->with('provinces', $provinces);
     }
 
     public function showLoginForm()
@@ -56,11 +60,11 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'code_organisation' => 'UNHCR',
+            'code_organisation' => '-',
             'user_role' => 'Guest',
-            'phone_number' => '00000000',
+            'phone_number' => $request->phone_number,
             'is_active' => 'Non',
-            'province_code' => 'CD74',
+            'province_code' => $request->pcode_province,
             'desactivated_by' => '',
             'desactivate_reason' => '',
             'access_level' => 'Local',
@@ -117,6 +121,83 @@ class AuthController extends Controller
         } else {
             return redirect()->route('login');
         }
+
+    }
+
+    public function getUsers()
+    {
+        if (Auth::check()) {
+            $user = auth()->user();
+
+            if ($user->user_role == 'Administrateur') {
+                $users = User::where('province_code', '=', $user->province_code)
+                    ->orderBy('name', 'asc')
+                    ->get();
+
+                return view('user.list')->with('users', $users);
+
+            } else {
+                session()->flash('error', 'Vous n\'êtes pas autorisé à effectuer cette action !');
+            }
+
+
+        } else {
+            return redirect()->route('login');
+        }
+
+    }
+
+    public function getUser($id)
+    {
+        $provinces = Province::all();
+        $user = User::find($id);
+        $organisations = Organisation::where('code_organisation', '!=', '-')->get();
+        return view('user.edit', compact('user'))
+            ->with('provinces', $provinces)
+            ->with('organisations', $organisations);
+    }
+
+
+    public function edituser(Request $request)
+    {
+        //Validation
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'required|string|max:255',
+                'phone_number' => 'required|digits:10',
+
+            ],
+            [
+                'name.required' => 'Le nom est obligatoire',
+                'phone_number.required' => 'Saisissez le numéro de téléphone',
+
+
+            ]
+        );
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+
+        }
+
+
+        //Mise a jour
+        $id = $request->input('id');
+        $user = User::find($id);
+
+        $user->name = $request->input('name');
+        $user->phone_number = $request->input('phone_number');
+        //$user->is_active = $request->input('is_active');
+        $user->user_role = $request->input('user_role');
+        $user->code_organisation = $request->input('code_organisation');
+        $user->is_active = $request->is_active;
+
+        $user->save();
+
+
+        return redirect()->route('users.list')->with('success', 'Données modifiées avec succès');
+
 
     }
 }
